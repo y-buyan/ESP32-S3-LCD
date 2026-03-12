@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "name": "ESP-IDF",
+            "compilerPath": "d:\\ESP-IDF-Container-Directory\\tools\\xtensa-esp-elf\\esp-14.2.0_20251107\\xtensa-esp-elf\\bin\\xtensa-esp32s3-elf-gcc.exe",
+            "compileCommands": [
+                "${config:idf.buildPath}/compile_commands.json"
+            ],
+            "includePath": [
+                "${workspaceFolder}/**",
+                "D:/ESP/v5.5.2/esp-idf/components/esp_lcd/include",
+                "D:/ESP/v5.5.2/esp-idf/components/freertos/FreeRTOS-Kernel-SMP/include",
+                "D:/ESP/v5.5.2/esp-idf/components/esp_common/include",
+                "D:/ESP/v5.5.2/esp-idf/components/freertos/config/include/freertos",
+                "${workspaceFolder}/managed_components/lvgl__lvgl/env_support/rt-thread/squareline/ui",
+                "${workspaceFolder}/managed_components/lvgl__lvgl/env_support/rt-thread/squareline/ui",
+                "${workspaceFolder}/managed_components/lvgl__lvgl/src/tick",
+                "D:/ESP/v5.5.2/esp-idf/components/hal/include"
+            ],
+            "browse": {
+                "path": [
+                    "${workspaceFolder}"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
+        }
+    ],
+    "version": 4
+}
