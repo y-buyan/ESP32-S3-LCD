@@ -7,6 +7,7 @@
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_panel_commands.h"
 #include "esp_lcd_gc9a01.h"
+#include "driver/ledc.h"
 #include "lvgl.h"
 #include "lv_demos.h"
 #include "lv_conf.h"
@@ -49,6 +50,7 @@ typedef struct {
 
 
 void LCD_Init(void);
+void LV_Init(void);
 void LCD_Task(void);
 void LCD_BL_SW(uint8_t state);
 

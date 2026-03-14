@@ -14,13 +14,13 @@
 #include "esp_system.h"
 #include "RGB.h"
 #include "LCD.h"
-#include "lv_conf.h"
 
 
 void Driver_init(void)
 {
     Rgb_init();
     LCD_Init();
+    LV_Init();
 }
 
 

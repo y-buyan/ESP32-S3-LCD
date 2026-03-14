@@ -19,3 +19,4 @@ dependencies:
   espressif/esp_lcd_touch: ^1.2.1
   lvgl/lvgl: ^9.5.0
   espressif/esp_lvgl_port: ^2.7.2
+  espressif/esp_video: ^2.0.1
