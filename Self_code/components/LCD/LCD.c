@@ -23,6 +23,19 @@ esp_lcd_panel_io_handle_t io_handle = NULL;
 esp_lcd_panel_handle_t panel_handle = NULL;
 static void LCD_BL_Init(void)
 {
+    const gpio_config_t LCD_BL_gpio_config = {
+        .pin_bit_mask = (1ULL << Self_PIN_NUM_LCD_BL),
+        .mode = GPIO_MODE_OUTPUT,
+        .pull_up_en = GPIO_PULLUP_ENABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE};
+
+    const ledc_timer_config_t LCD_backlight_timer = {
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .duty_resolution = LEDC_TIMER_13_BIT,
+        .timer_num = LEDC_TIMER_0,
+        .freq_hz = 8000,
+        .clk_cfg = LEDC_AUTO_CLK};
 
     const ledc_channel_config_t LCD_backlight_channel = {
         .gpio_num = Self_PIN_NUM_LCD_BL,
@@ -32,30 +45,28 @@ static void LCD_BL_Init(void)
         .timer_sel = LEDC_TIMER_0,
         .duty = 0,
         .hpoint = 0,
-        .flags.output_invert = true
-    };
-     const ledc_timer_config_t LCD_backlight_timer = {
-        .speed_mode       = LEDC_LOW_SPEED_MODE,
-        .duty_resolution  = LEDC_TIMER_10_BIT,
-        .timer_num        = LEDC_TIMER_0,
-        .freq_hz          = 5000,
-        .clk_cfg          = LEDC_AUTO_CLK
-    };
+        .flags.output_invert = true};
+    gpio_config(&LCD_BL_gpio_config);
     ledc_timer_config(&LCD_backlight_timer);
     ledc_channel_config(&LCD_backlight_channel);
+    ledc_fade_func_install(0);
 }
-
 
 void LCD_BL_SET(uint8_t bl_duty)
 {
-    if(bl_duty <= 0){
-       bl_duty = 0;
-    }else if(bl_duty >= 100){
-       bl_duty = 100; 
+    if (bl_duty <= 0)
+    {
+        bl_duty = 0;
     }
-    uint32_t duty_cycle = (bl_duty * 1023) / 100;
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty_cycle);
-    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    else if (bl_duty >= 100)
+    {
+        bl_duty = 100;
+    }
+    uint32_t duty_cycle = (bl_duty * 8191) / 100;
+    ESP_LOGI(LCD_TAG, "Setting backlight duty: %d%% -> %d (raw)", bl_duty, duty_cycle);
+
+    ledc_set_fade_with_time(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 8191 - duty_cycle, 500);
+    ledc_fade_start(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, LEDC_FADE_NO_WAIT);
 }
 
 /*
@@ -140,12 +151,11 @@ void fill_screen_lvgl(lv_color_t color)
     // lv_refr_now(NULL);
 }
 
-
 // 这里的参数 image 应该是你转换后的图片描述符，类型通常是 const lv_image_dsc_t *
-void lvgl_show_image(const lv_image_dsc_t * image)
+void lvgl_show_image(const lv_image_dsc_t *image)
 {
     // 1. 创建一个图像对象（在当前活动屏幕上）
-    lv_obj_t * img_obj = lv_image_create(lv_screen_active());
+    lv_obj_t *img_obj = lv_image_create(lv_screen_active());
 
     // 2. 设置图像源
     // 在 v9 中，推荐使用 lv_image_set_src，虽然旧的 lv_img_set_src 可能还能用
@@ -188,7 +198,6 @@ void LCD_Init(void)
     esp_lcd_panel_invert_color(panel_handle, true);
     esp_lcd_panel_mirror(panel_handle, true, false);
     esp_lcd_panel_disp_on_off(panel_handle, true);
-    // LCD_BL_SET(100);
 }
 
 void LV_Init(void)
@@ -218,14 +227,36 @@ void LV_Init(void)
 
     lv_disp_t *disp = lvgl_port_add_disp(&disp_cfg);
     lv_display_set_color_format(disp, LV_COLOR_FORMAT_RGB565_SWAPPED);
-
-    lvgl_show_image(&su);
 }
 
 static void _LCD_Handle(void *pvParameters)
 {
+    uint8_t i = 0;
+    uint8_t flag = 0;
+    lvgl_show_image(&su);
     while (1)
     {
+        if (!flag)
+        {
+            for (i = 0; i < 100; i += 5)
+            {
+                ESP_LOGI(LCD_TAG, "LCD_BL_SET %d ,up_flag =  %d", i, flag);
+                LCD_BL_SET(i);
+            }
+            flag = 1;
+            i = 100;
+        }
+        else if (flag)
+        {
+            for (; i > 0; i -= 5)
+            {
+                ESP_LOGI(LCD_TAG, "LCD_BL_SET %d ,down_flag =  %d", i, flag);
+                LCD_BL_SET(i);
+            }
+            flag = 0;
+            i = 0;
+
+        }
     }
 }
 
