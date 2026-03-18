@@ -20,6 +20,7 @@ void Driver_init(void)
 {
     Rgb_init();
     LCD_Init();
+    // LCD_TOUCH_Init();
     LV_Init();
 }
 

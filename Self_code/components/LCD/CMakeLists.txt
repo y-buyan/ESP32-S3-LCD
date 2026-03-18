@@ -1,4 +1,17 @@
-idf_component_register(SRCS "LCD.c"
-                    INCLUDE_DIRS "include"
-                    REQUIRES esp_lcd_gc9a01 lvgl esp_lvgl_port Lv_UI esp_timer esp_driver_gpio
-                    )
+idf_component_register(
+    SRCS
+        "LCD.c"
+    INCLUDE_DIRS
+        "include"
+    REQUIRES
+        #官方组件
+        lvgl
+        esp_lvgl_port
+        esp_lcd_gc9a01
+        esp_timer
+        esp_lcd_touch
+        esp_lcd_touch_cst816s
+    PRIV_REQUIRES
+        #私有组件
+        Lv_UI
+)
