@@ -289,48 +289,73 @@ void LV_Init(void)
 
 static void _LCD_Handle(void *pvParameters)
 {
-    uint8_t i = 0;
-    uint8_t flag = 0;
-    lvgl_show_image(&su);
-    while (1)
-    {
-            if (!flag)
-            {
-                for (i = 0; i < 100; i += 5)
-                {
-                    ESP_LOGI(LCD_TAG, "LCD_BL_SET %d ,up_flag =  %d", i, flag);
-                    LCD_BL_SET(i);
-                }
-                flag = 1;
-                i = 100;
-            }
-            else if (flag)
-            {
-                for (; i > 0; i -= 5)
-                {
-                    ESP_LOGI(LCD_TAG, "LCD_BL_SET %d ,down_flag =  %d", i, flag);
-                    LCD_BL_SET(i);
-                }
-                flag = 0;
-                i = 0;
+    // uint8_t i = 0;
+    // uint8_t flag = 0;
+    // lvgl_show_image(&su);
+    // while (1)
+    // {
+    //         // if (!flag)
+    //         // {
+    //         //     for (i = 0; i < 100; i += 5)
+    //         //     {
+    //         //         ESP_LOGI(LCD_TAG, "LCD_BL_SET %d ,up_flag =  %d", i, flag);
+    //         //         LCD_BL_SET(i);
+    //         //     }
+    //         //     flag = 1;
+    //         //     i = 100;
+    //         // }
+    //         // else if (flag)
+    //         // {
+    //         //     for (; i > 0; i -= 5)
+    //         //     {
+    //         //         ESP_LOGI(LCD_TAG, "LCD_BL_SET %d ,down_flag =  %d", i, flag);
+    //         //         LCD_BL_SET(i);
+    //         //     }
+    //         //     flag = 0;
+    //         //     i = 0;
 
-            }
-        // lv_example_event_click();
-    }
+    //         // }
+    //     lv_example_event_click();
+    // }
 
     
 }
 
-void LCD_Task(void)
+void  LCD_Task(void)
 {
     // // RGB
-    xTaskCreatePinnedToCore(
-        _LCD_Handle,
-        "LCD Demo",
-        4096,
-        NULL,
-        5,
-        NULL,
-        0);
+    // xTaskCreatePinnedToCore(
+    //     _LCD_Handle,
+    //     "LCD Demo",
+    //     4096,
+    //     NULL,
+    //     5,
+    //     NULL,
+    //     0);
     // lv_example_anim_1();
+    // while (1)
+    // {
+            // if (!flag)
+            // {
+            //     for (i = 0; i < 100; i += 5)
+            //     {
+            //         ESP_LOGI(LCD_TAG, "LCD_BL_SET %d ,up_flag =  %d", i, flag);
+            //         LCD_BL_SET(i);
+            //     }
+            //     flag = 1;
+            //     i = 100;
+            // }
+            // else if (flag)
+            // {
+            //     for (; i > 0; i -= 5)
+            //     {
+            //         ESP_LOGI(LCD_TAG, "LCD_BL_SET %d ,down_flag =  %d", i, flag);
+            //         LCD_BL_SET(i);
+            //     }
+            //     flag = 0;
+            //     i = 0;
+
+            // }
+        lv_example_event_click();
+    // }
 }

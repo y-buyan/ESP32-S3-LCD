@@ -29,7 +29,7 @@
 #define Self_PIN_NUM_LCD_PCLK (GPIO_NUM_3)
 #define Self_PIN_NUM_LCD_DATA0 (GPIO_NUM_10)
 #define Self_PIN_NUM_LCD_RST (GPIO_NUM_21)
-#define Self_PIN_NUM_LCD_DC (GPIO_NUM_7)
+#define Self_PIN_NUM_LCD_DC (GPIO_NUM_15)
 #define Self_PIN_NUM_LCD_BL (GPIO_NUM_42)
 
 #define Self_DELAY_TIME_MS (3000)                                    
