@@ -14,6 +14,7 @@
 
 static char *LCD_TAG = "gc9a01";
 static char *Lvgl_TAG = "lvgl";
+static char *Touch_TAG = "touch";
 
 LV_IMAGE_DECLARE(su);
 
@@ -21,10 +22,20 @@ static SemaphoreHandle_t refresh_finish = NULL;
 
 esp_lcd_panel_io_handle_t io_handle = NULL;
 esp_lcd_panel_handle_t panel_handle = NULL;
+
+i2c_master_bus_handle_t i2c_handle = NULL;
+
+static bool _notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
+{
+    lv_display_t *disp = (lv_display_t *)user_ctx;
+    lv_display_flush_ready(disp);
+    return false;
+}
+
 static void LCD_BL_Init(void)
 {
     const gpio_config_t LCD_BL_gpio_config = {
-        .pin_bit_mask = (1ULL << Self_PIN_NUM_LCD_BL),
+        .pin_bit_mask = (1ULL << Self_PIN_NUM_LCD_BL), // 同时配置 LCD_BL 和触摸屏复位引脚
         .mode = GPIO_MODE_OUTPUT,
         .pull_up_en = GPIO_PULLUP_ENABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
@@ -198,6 +209,45 @@ void LCD_Init(void)
     esp_lcd_panel_invert_color(panel_handle, true);
     esp_lcd_panel_mirror(panel_handle, true, false);
     esp_lcd_panel_disp_on_off(panel_handle, true);
+
+    LCD_BL_SET(100);
+}
+void LCD_TOUCH_Init(void)
+{
+
+    // Touch initialization code here
+    /* Initilize I2C */
+    ESP_LOGI(Touch_TAG, "Initialize I2C");
+    i2c_master_bus_handle_t i2c_handle = NULL;
+    const i2c_master_bus_config_t i2c_config = {
+        .i2c_port = Self_TOUCH_I2C_NUM,
+        .sda_io_num = Self_TOUCH_I2C_SDA,
+        .scl_io_num = Self_TOUCH_I2C_SCL,
+        .clk_source = I2C_CLK_SRC_DEFAULT,
+    };
+    i2c_new_master_bus(&i2c_config, &i2c_handle);
+
+    const esp_lcd_touch_config_t tp_cfg = {
+        .x_max = Self_LCD_H_RES,
+        .y_max = Self_LCD_V_RES,
+        .rst_gpio_num = GPIO_NUM_NC, // Shared with LCD reset
+        .int_gpio_num = Self_TOUCH_GPIO_INT,
+        .levels = {
+            .reset = 0,
+            .interrupt = 0,
+        },
+        .flags = {
+            .swap_xy = 0,
+            .mirror_x = 1,
+            .mirror_y = 0,
+        },
+    };
+    esp_lcd_touch_handle_t touch_handle;
+    esp_lcd_panel_io_handle_t tp_io_handle = NULL;
+    esp_lcd_panel_io_i2c_config_t tp_io_config = ESP_LCD_TOUCH_IO_I2C_CST816S_CONFIG();
+    tp_io_config.scl_speed_hz = Self_TOUCH_I2C_CLK_HZ;
+    esp_lcd_new_panel_io_i2c(i2c_handle, &tp_io_config, &tp_io_handle);
+    esp_lcd_touch_new_i2c_cst816s(tp_io_handle, &tp_cfg, &touch_handle);
 }
 
 void LV_Init(void)
@@ -227,6 +277,14 @@ void LV_Init(void)
 
     lv_disp_t *disp = lvgl_port_add_disp(&disp_cfg);
     lv_display_set_color_format(disp, LV_COLOR_FORMAT_RGB565_SWAPPED);
+
+    // ESP_LOGI(Lvgl_TAG, "Register io panel event callback for LVGL flush ready notification");
+    // const esp_lcd_panel_io_callbacks_t cbs = {
+    //     .on_color_trans_done = _notify_lvgl_flush_ready,
+    // };
+    // /* Register done callback */
+    // esp_lcd_panel_io_register_event_callbacks(io_handle, &cbs, _notify_lvgl_flush_ready);
+
 }
 
 static void _LCD_Handle(void *pvParameters)
@@ -236,33 +294,36 @@ static void _LCD_Handle(void *pvParameters)
     lvgl_show_image(&su);
     while (1)
     {
-        if (!flag)
-        {
-            for (i = 0; i < 100; i += 5)
+            if (!flag)
             {
-                ESP_LOGI(LCD_TAG, "LCD_BL_SET %d ,up_flag =  %d", i, flag);
-                LCD_BL_SET(i);
+                for (i = 0; i < 100; i += 5)
+                {
+                    ESP_LOGI(LCD_TAG, "LCD_BL_SET %d ,up_flag =  %d", i, flag);
+                    LCD_BL_SET(i);
+                }
+                flag = 1;
+                i = 100;
             }
-            flag = 1;
-            i = 100;
-        }
-        else if (flag)
-        {
-            for (; i > 0; i -= 5)
+            else if (flag)
             {
-                ESP_LOGI(LCD_TAG, "LCD_BL_SET %d ,down_flag =  %d", i, flag);
-                LCD_BL_SET(i);
-            }
-            flag = 0;
-            i = 0;
+                for (; i > 0; i -= 5)
+                {
+                    ESP_LOGI(LCD_TAG, "LCD_BL_SET %d ,down_flag =  %d", i, flag);
+                    LCD_BL_SET(i);
+                }
+                flag = 0;
+                i = 0;
 
-        }
+            }
+        // lv_example_event_click();
     }
+
+    
 }
 
 void LCD_Task(void)
 {
-    // RGB
+    // // RGB
     xTaskCreatePinnedToCore(
         _LCD_Handle,
         "LCD Demo",
@@ -271,4 +332,5 @@ void LCD_Task(void)
         5,
         NULL,
         0);
+    // lv_example_anim_1();
 }
