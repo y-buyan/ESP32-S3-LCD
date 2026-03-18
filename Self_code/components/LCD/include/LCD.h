@@ -29,11 +29,7 @@
 #define Self_PIN_NUM_LCD_PCLK (GPIO_NUM_3)
 #define Self_PIN_NUM_LCD_DATA0 (GPIO_NUM_10)
 #define Self_PIN_NUM_LCD_RST (GPIO_NUM_21)
-<<<<<<< HEAD
 #define Self_PIN_NUM_LCD_DC (GPIO_NUM_15)
-=======
-#define Self_PIN_NUM_LCD_DC (GPIO_NUM_7)
->>>>>>> f6fe5688d8bb40c8e98a5696a5a78bde893542db
 #define Self_PIN_NUM_LCD_BL (GPIO_NUM_42)
 
 #define Self_DELAY_TIME_MS (3000)                                    
@@ -43,12 +39,6 @@
 #define Self_LVGL_TASK_MIN_DELAY_MS (1)
 #define Self_LVGL_TASK_STACK_SIZE (5 * 1024)
 #define Self_LVGL_TASK_PRIORITY (2)
-
-#define Self_TOUCH_I2C_NUM (0)
-#define Self_TOUCH_I2C_SCL (GPIO_NUM_18)
-#define Self_TOUCH_I2C_SDA (GPIO_NUM_8)
-#define Self_TOUCH_GPIO_INT (GPIO_NUM_4)
-#define Self_TOUCH_I2C_CLK_HZ (100000)
 
 typedef struct
 {

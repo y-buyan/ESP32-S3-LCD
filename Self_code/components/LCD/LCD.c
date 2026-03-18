@@ -210,44 +210,6 @@ void LCD_Init(void)
     esp_lcd_panel_mirror(panel_handle, true, false);
     esp_lcd_panel_disp_on_off(panel_handle, true);
 
-    LCD_BL_SET(100);
-}
-void LCD_TOUCH_Init(void)
-{
-
-    // Touch initialization code here
-    /* Initilize I2C */
-    ESP_LOGI(Touch_TAG, "Initialize I2C");
-    i2c_master_bus_handle_t i2c_handle = NULL;
-    const i2c_master_bus_config_t i2c_config = {
-        .i2c_port = Self_TOUCH_I2C_NUM,
-        .sda_io_num = Self_TOUCH_I2C_SDA,
-        .scl_io_num = Self_TOUCH_I2C_SCL,
-        .clk_source = I2C_CLK_SRC_DEFAULT,
-    };
-    i2c_new_master_bus(&i2c_config, &i2c_handle);
-
-    const esp_lcd_touch_config_t tp_cfg = {
-        .x_max = Self_LCD_H_RES,
-        .y_max = Self_LCD_V_RES,
-        .rst_gpio_num = GPIO_NUM_NC, // Shared with LCD reset
-        .int_gpio_num = Self_TOUCH_GPIO_INT,
-        .levels = {
-            .reset = 0,
-            .interrupt = 0,
-        },
-        .flags = {
-            .swap_xy = 0,
-            .mirror_x = 1,
-            .mirror_y = 0,
-        },
-    };
-    esp_lcd_touch_handle_t touch_handle;
-    esp_lcd_panel_io_handle_t tp_io_handle = NULL;
-    esp_lcd_panel_io_i2c_config_t tp_io_config = ESP_LCD_TOUCH_IO_I2C_CST816S_CONFIG();
-    tp_io_config.scl_speed_hz = Self_TOUCH_I2C_CLK_HZ;
-    esp_lcd_new_panel_io_i2c(i2c_handle, &tp_io_config, &tp_io_handle);
-    esp_lcd_touch_new_i2c_cst816s(tp_io_handle, &tp_cfg, &touch_handle);
 }
 
 void LV_Init(void)
