@@ -32,6 +32,7 @@ static bool _notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd
     return false;
 }
 
+
 static void LCD_BL_Init(void)
 {
     const gpio_config_t LCD_BL_gpio_config = {
@@ -216,13 +217,19 @@ void LV_Init(void)
 {
     ESP_LOGI(Lvgl_TAG, "Initialize LVGL");
     const lvgl_port_cfg_t lvgl_cfg = ESP_LVGL_PORT_INIT_CONFIG();
+
+    lv_init();
+
     lvgl_port_init(&lvgl_cfg);
+
+    /*Add rendering buffers to the screen.
+     *Here adding a smaller partial buffer assuming 16-bit (RGB565 color format)*/
 
     const lvgl_port_display_cfg_t disp_cfg = {
         .io_handle = io_handle,
         .panel_handle = panel_handle,
-        .buffer_size = Self_LCD_H_RES * 20, // LVGL缓存大小
-        .double_buffer = false,             // 是否开启双缓存
+        .buffer_size = Self_LCD_H_RES * 40, // LVGL缓存大小
+        .double_buffer = true,             // 是否开启双缓存
         .hres = Self_LCD_H_RES,             // 液晶屏的宽
         .vres = Self_LCD_V_RES,             // 液晶屏的高
         .monochrome = false,                // 是否单色显示器
@@ -235,48 +242,24 @@ void LV_Init(void)
         .flags = {
             .buff_dma = false,    // 是否使用DMA 注意：dma与spiram不能同时为true
             .buff_spiram = false, // 是否使用PSRAM 注意：dma与spiram不能同时为true
-        }};
+        }
+    };
+
+    static uint8_t buf[Self_LCD_H_RES * Self_LCD_V_RES / 10 * 2]; /* x2 because of 16-bit color depth */
 
     lv_disp_t *disp = lvgl_port_add_disp(&disp_cfg);
-    lv_display_set_color_format(disp, LV_COLOR_FORMAT_RGB565_SWAPPED);
 
-    // ESP_LOGI(Lvgl_TAG, "Register io panel event callback for LVGL flush ready notification");
-    // const esp_lcd_panel_io_callbacks_t cbs = {
-    //     .on_color_trans_done = _notify_lvgl_flush_ready,
-    // };
-    // /* Register done callback */
-    // esp_lcd_panel_io_register_event_callbacks(io_handle, &cbs, _notify_lvgl_flush_ready);
+    
+    lv_display_set_color_format(disp, LV_COLOR_FORMAT_RGB565_SWAPPED);
 
 }
 
 static void _LCD_Handle(void *pvParameters)
 {
-    uint8_t i = 0;
-    uint8_t flag = 0;
-    lvgl_show_image(&su);
-    while (1)
-    {
-        if (!flag)
-        {
-            for (i = 0; i < 100; i += 5)
-            {
-                ESP_LOGI(LCD_TAG, "LCD_BL_SET %d ,up_flag =  %d", i, flag);
-                LCD_BL_SET(i);
-            }
-            flag = 1;
-            i = 100;
-        }
-        else if (flag)
-        {
-            for (; i > 0; i -= 5)
-            {
-                ESP_LOGI(LCD_TAG, "LCD_BL_SET %d ,down_flag =  %d", i, flag);
-                LCD_BL_SET(i);
-            }
-            flag = 0;
-            i = 0;
-
-        }
+if (lvgl_port_lock(0)) {
+    // 这里创建你的 UI 元素
+    lv_obj_t * label = lv_label_create(lv_screen_active());
+    lvgl_port_unlock();
     }
 }
 

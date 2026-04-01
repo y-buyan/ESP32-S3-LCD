@@ -1,4 +1,22 @@
 dependencies:
+  esp-idf-lib/encoder:
+    component_hash: 0ac3bb66deff664544512216b30b38f05c6c45f42329afb8f089d196a6c6d30c
+    dependencies: []
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    targets:
+    - esp32
+    - esp32c2
+    - esp32c3
+    - esp32c5
+    - esp32c6
+    - esp32c61
+    - esp32h2
+    - esp32p4
+    - esp32s2
+    - esp32s3
+    version: 3.0.2
   espressif/cmake_utilities:
     component_hash: 351350613ceafba240b761b4ea991e0f231ac7a9f59a9ee901f751bddc0bb18f
     dependencies:
@@ -184,6 +202,7 @@ dependencies:
       type: service
     version: 9.5.0
 direct_dependencies:
+- esp-idf-lib/encoder
 - espressif/esp_lcd_gc9a01
 - espressif/esp_lcd_touch
 - espressif/esp_lcd_touch_cst816s
@@ -192,6 +211,6 @@ direct_dependencies:
 - espressif/led_strip
 - idf
 - lvgl/lvgl
-manifest_hash: 1ac1f5501f9e4b0cbd65abc1d98d568dc8ba4a2e332891036dd586bc4a6ef888
+manifest_hash: 6d071806003fc56c36422a2422d07debbfbf4ffdd31757e90ac37cee6891e087
 target: esp32s3
 version: 2.0.0

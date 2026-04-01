@@ -15,7 +15,8 @@
                 "${workspaceFolder}/managed_components/lvgl__lvgl/env_support/rt-thread/squareline/ui",
                 "${workspaceFolder}/managed_components/lvgl__lvgl/env_support/rt-thread/squareline/ui",
                 "${workspaceFolder}/managed_components/lvgl__lvgl/src/tick",
-                "D:/ESP/v5.5.2/esp-idf/components/hal/include"
+                "D:/ESP/v5.5.2/esp-idf/components/hal/include",
+                "D:/ESP/v5.5.2/esp-idf/components/esp_hw_support/include"
             ],
             "browse": {
                 "path": [
