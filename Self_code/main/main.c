@@ -16,14 +16,12 @@
 /* user includes */
 #include "RGB.h"
 #include "LCD.h"
-#include "Encoder.h"
 
 
 void Driver_init(void)
 {
     Rgb_init();
     LCD_Init();
-    Encoder_Init();
     LV_Init();
 }
 

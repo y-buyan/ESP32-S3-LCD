@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "RGB.h"
-
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #define _RGB_INDEX_MAX 32
 
 static void Rgb_set_color(uint8_t red_val, uint8_t green_val, uint8_t blue_val);

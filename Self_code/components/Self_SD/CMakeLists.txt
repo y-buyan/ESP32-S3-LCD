@@ -1,4 +1,10 @@
-idf_component_register(SRCS "Self_SD.c"
-                    INCLUDE_DIRS "include"
-                    REQUIRES  fatfs sd_card
-                    )
+idf_component_register(
+    SRCS
+        "Self_SD.c"
+    INCLUDE_DIRS
+        "include"
+    REQUIRES
+        esp_driver_sdspi
+        sdmmc
+        fatfs
+)

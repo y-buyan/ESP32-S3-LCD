@@ -7,17 +7,16 @@
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_panel_commands.h"
 #include "esp_lcd_gc9a01.h"
-#include "driver/ledc.h"
 #include "lvgl.h"
 #include "lv_demos.h"
-#include "lv_conf.h"
 #include "lv_examples.h"
 #include "esp_lvgl_port.h"
 #include "driver/i2c_master.h"
 #include "esp_lcd_touch.h"
 #include "esp_lcd_touch_cst816s.h"
 #include "../lvgl_private.h"
-
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 
 #define Self_LCD_HOST SPI2_HOST

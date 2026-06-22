@@ -6,12 +6,13 @@ idf_component_register(
     REQUIRES
         #官方组件
         lvgl
+        esp_driver_ledc
         esp_lvgl_port
         esp_lcd_gc9a01
         esp_timer
         esp_lcd_touch
         esp_lcd_touch_cst816s
-    PRIV_REQUIRES
+        PRIV_REQUIRES
         #私有组件
         Lv_UI
 )

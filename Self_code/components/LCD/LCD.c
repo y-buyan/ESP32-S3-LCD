@@ -4,6 +4,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/spi_master.h"
+#include "driver/ledc.h"
 #include "driver/gpio.h"
 #include "esp_timer.h"
 #include "esp_log.h"
@@ -14,7 +15,6 @@
 
 static char *LCD_TAG = "gc9a01";
 static char *Lvgl_TAG = "lvgl";
-static char *Touch_TAG = "touch";
 
 LV_IMAGE_DECLARE(su);
 
@@ -31,7 +31,6 @@ static bool _notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd
     lv_display_flush_ready(disp);
     return false;
 }
-
 
 static void LCD_BL_Init(void)
 {
@@ -210,7 +209,6 @@ void LCD_Init(void)
     esp_lcd_panel_invert_color(panel_handle, true);
     esp_lcd_panel_mirror(panel_handle, true, false);
     esp_lcd_panel_disp_on_off(panel_handle, true);
-
 }
 
 void LV_Init(void)
@@ -228,8 +226,8 @@ void LV_Init(void)
     const lvgl_port_display_cfg_t disp_cfg = {
         .io_handle = io_handle,
         .panel_handle = panel_handle,
-        .buffer_size = Self_LCD_H_RES * 40, // LVGL缓存大小
-        .double_buffer = true,             // 是否开启双缓存
+        .buffer_size = Self_LCD_H_RES * 20, // LVGL缓存大小
+        .double_buffer = true,              // 是否开启双缓存
         .hres = Self_LCD_H_RES,             // 液晶屏的宽
         .vres = Self_LCD_V_RES,             // 液晶屏的高
         .monochrome = false,                // 是否单色显示器
@@ -242,28 +240,46 @@ void LV_Init(void)
         .flags = {
             .buff_dma = false,    // 是否使用DMA 注意：dma与spiram不能同时为true
             .buff_spiram = false, // 是否使用PSRAM 注意：dma与spiram不能同时为true
-        }
-    };
+        }};
 
     static uint8_t buf[Self_LCD_H_RES * Self_LCD_V_RES / 10 * 2]; /* x2 because of 16-bit color depth */
 
     lv_disp_t *disp = lvgl_port_add_disp(&disp_cfg);
 
-    
     lv_display_set_color_format(disp, LV_COLOR_FORMAT_RGB565_SWAPPED);
-
 }
 
 static void _LCD_Handle(void *pvParameters)
 {
-if (lvgl_port_lock(0)) {
-    // 这里创建你的 UI 元素
-    lv_obj_t * label = lv_label_create(lv_screen_active());
-    lvgl_port_unlock();
+    uint8_t i = 0;
+    uint8_t flag = 0;
+    lvgl_show_image(&su);
+    while (1)
+    {
+        if (!flag)
+        {
+            for (i = 0; i < 100; i += 5)
+            {
+                ESP_LOGI(LCD_TAG, "LCD_BL_SET %d ,up_flag =  %d", i, flag);
+                LCD_BL_SET(i);
+            }
+            flag = 1;
+            i = 100;
+        }  
+        else if (flag)
+        {
+            for (; i > 0; i -= 5)
+            {
+                ESP_LOGI(LCD_TAG, "LCD_BL_SET %d ,down_flag =  %d", i, flag);
+                LCD_BL_SET(i);
+            }
+            flag = 0;
+            i = 0;
+        }
     }
 }
 
-void  LCD_Task(void)
+void LCD_Task(void)
 {
     // RGB
     xTaskCreatePinnedToCore(
